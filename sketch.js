@@ -14,7 +14,8 @@ var angle = 30;
 var g = 9.81;
 
 // On définit les paramètres de la boucle (méthode de Euler)
-var step = 0.25;
+
+var step = 0.125;
 var end = 40;
 end *= step;
 // On définit les valeurs initiales de vitesse et position de la simulation
@@ -63,7 +64,8 @@ zS.position(700, 450);
 }
 
 function draw() {
-  background(51);
+    background(51);
+    fill(255);
     
     for(var i = 0; i < txt.length; i++) {
         txt[i].remove();
@@ -157,13 +159,8 @@ var vix = cos(angle)*v;
         }
         }
     }
-    for(var i = 0; i<end; i+=step) {
-        fill(255);
-        if(posy[i] >= 0) {
-        ellipse(posx[i]*zoom + 50, -posy[i]*zoom + 400, 300*r, 300*r);
-        }
-    }
     
+Affichage();
 Terrain();
     
 }
@@ -177,4 +174,50 @@ function Terrain() {
     }
     line(11.89*zoom + 50, 400, 11.89*zoom + 50, 400-(0.914*zoom));
     
+}
+function Affichage() {
+    for(var i = 0; i<end; i+=step) {
+        fill(255);
+//On repère les deux points les plus proches du filet
+        if(posx[i] > 11.89 && posx[i-step] < 11.89) {
+//On détermine la droite qui passe par ces deux points
+            var a = (posy[i]-posy[i-step])/(posx[i]-posx[i-step]);
+            var b = posy[i]-(a*posx[i]);
+           break;
+        }
+    }
+// on vérifie pour chaque point s'il respecte les conditions nécessaires pour etre affiché
+    for(var i = 0; i<end; i+=step) {
+
+        if((a*(11.89) + b - r > 0.914 || posx[i] < 11.89)  && posy[i] > 0) {
+//conditions si-dessus:     ^                                  ^
+//             l'ordonnée de la balle doit etre             on ne dessine que les 
+//             supérieure à celle du filet et son           balles au-dessus de
+//             rayon doit lui permettre de passer           la surface du terrain
+           
+// On dessine la balle (de rayon indépendant du zoom pour un confort visuel)
+                ellipse(posx[i]*zoom + 50, -posy[i]*zoom + 400, 300*r, 300*r);
+   
+        }else{
+//On différencie les motifs de faute
+            //On commence par les balles trop courtes/longues
+            if(posy[i-step] > 0 && ((posx[i] + posx[i-step])/2 < 11.89 || (posx[i] + posx[i-step])/2 > 23.77) ) {
+                if(a*(11.89) + b - r < 0.914 && a*(11.89) + b - r > 0) {
+                Faute('Filet');
+            }else if((posx[i] + posx[i-step])/2 < 11.89) {
+                    Faute('Balle trop courte');
+                }else{
+                   Faute('Balle trop longue'); 
+                }
+        }
+            // Puis les balles dans le filet
+            
+        }
+    }
+}
+
+function Faute(motif) {
+    fill(255, 0, 0);
+    text('Faute : ' + motif, 150, 100);
+    fill(255);
 }
