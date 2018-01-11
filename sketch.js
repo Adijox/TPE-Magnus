@@ -3,7 +3,12 @@ var zoom = 13;
 
 //On crée des variables globales de Slider
 var rS,mS, ctS, cpS, rhoS, angleS, gS;
+var S = [];
 var txt = [];
+var Smin = [0.01,0.01, 0.001,-50,1,0,1,1,1];
+var Smax = [0.05,5,10,50,10,89,15,50,50];
+
+var Sstep = [0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.5];
 // On définit les constantes concernant la balle, et le milieu
 var r = 0.032;
 var m = 0.14;
@@ -32,6 +37,11 @@ var accy = [];
 var velsy = [];
 var posy = [];
 
+
+var inputs = [];
+var focus = [];
+
+var Sval = [r,m,ct,cp,rho,angle,g,v,zoom];
 function setup() {
     createCanvas(600, 600);
     background(51);
@@ -40,67 +50,129 @@ function setup() {
     
     
     
+
+    
 // On définit les constantes concernant la balle, et le milieu
-rS = createSlider(0.01, 0.05, r, 0.001);
-mS = createSlider(0.01, 5, m, 0.001);
-ctS = createSlider(0.001, 10, ct, 0.001);
-cpS = createSlider(-50, 50, cp, 0.001);
-rhoS = createSlider(1, 10, rho, 0.001);
-angleS = createSlider(0, 89, angle, 0.001);
-gS = createSlider(1, 15, g, 0.001);
-vS = createSlider(1, 50, v, 0.001);
-zS = createSlider(1, 50, zoom, 0.5);
-    
-rS.position(700, 50);
-mS.position(700, 100);
-ctS.position(700, 150);
-cpS.position(700, 200);
-rhoS.position(700, 250);
-angleS.position(700, 300);
-gS.position(700, 350);
-vS.position(700, 400);
-zS.position(700, 450);
-    
+    for(var i = 0; i < 9; i++) {
+        S[i] = createSlider(Smin[i], Smax[i], Sval[i], Sstep[i]);
+        S[i].id('slid' + i);
+        S[i].position(700, i*50 + 50);
+    }
+//On crée ensuite les zones d'entrée qui correspondent à chaque curseur, dont elles héritent la valeur (Sval[i])
+    for(var i = 0; i < S.length; i++) {
+        inputs[i] = createInput(Sval[i]).size(50);
+    }
+
+    for(var i = 0; i < S.length; i++) {
+        inputs[i].position(630, i*50 + 50);
+        inputs[i].id('champs' + i);
+        focus[i] = false;
+    }
 }
 
 function draw() {
+//--------------------
+//Première partie du programme : mise en place de l'interface graphique (curseurs, zones de texte et d'entrée)
+//--------------------
     background(51);
     fill(255);
-    
+//On supprime les textes affichés et les boites d'entrée pour en dessiner de nouveaux, avec des valeurs actualisées
     for(var i = 0; i < txt.length; i++) {
         txt[i].remove();
     }
-    
-r = rS.value();    
-m = mS.value();   
-ct = ctS.value();   
-cp = cpS.value();   
-rho = rhoS.value();   
-angle = angleS.value();   
-g = gS.value();
-v = vS.value();
-zoom = zS.value();
 
-txt[0] = createDiv('Rayon de la balle : ' + r + ' m');
-txt[1] = createDiv('Masse de la balle : ' + m + ' kg');
-txt[2] = createDiv('Coefficient de trainée : ' + ct);
-txt[3] = createDiv('Coefficient de portance : ' + cp);
-txt[4] = createDiv('Masse volumique du fluide : ' + rho + ' kg*m^-3');
-txt[5] = createDiv('Angle de frappe : ' + angle + '°');
-txt[6] = createDiv('Accélération de la pesanteur : ' + g + ' m*s^-2');
-txt[7] = createDiv('Vitesse donnée lors de la frappe : ' + v + ' m*s^-1');
-txt[8] = createDiv('Zoom : ' + zoom);
+r = S[0].value(); 
+m = S[1].value();   
+ct = S[2].value();   
+cp = S[3].value();   
+rho = S[4].value();   
+angle = S[5].value();   
+g = S[6].value();
+v = S[7].value();
+zoom = S[8].value();
+
+
+//Puis tous les boites d'entrées 
+    for(var i = 0; i < S.length; i++) {
+//fonction nécessaire au bon fonctionnement de Jquery dans une boucle 'for' (méthode de 'closure') 
+        (function(i) {
+        var paramname;
+//On associe à chaque valeur de i le nom d'un des paramètres
+    switch(i) {
+        case 0:paramname = r;
+            break;
+        case 1:paramname = m;
+            break;
+        case 2:paramname = ct;
+            break;
+        case 3:paramname = cp;
+            break;
+        case 4:paramname = rho;
+            break;
+        case 5:paramname = angle;
+            break;
+        case 6:paramname = g;
+            break;
+        case 7:paramname = v;
+            break;
+        case 8:paramname = zoom;
+            break;
+            
+            
+            }
+//Systeme de détection de la sélection d'un champ d'entrée qui permet de momentanément désactiver la syncro slider-textbox
+         $('#champs' + i).bind('input propertychange', function() {
+             console.log(i + ' is on focus');
+        focus[i] = true;
+    });
+    $( "#champs" + i ).blur( function() {
+    focus[i] = false;
+});
+
+    $("#champs" + i).keypress(function(e) { 
+        if (e.which == 13) {
+
+            $(this).blur();
+            
+            paramname = $('#champs'+ i).val();
+            $('#slid' + i).val(paramname);
+            console.log(S[i].value() + ' S à value ');
+            e.which = -2;
+        }
+             
+
+});
+        
+//Dès que le slider change de position, on affiche une nouvelle boite dentrée anvec la nouvelle valeur actualisée
+if( document.getElementById('champs' + i).value != paramname && focus[i] == false) {
+    inputs[i].remove();
     
+    inputs[i] = createInput(paramname).size(50);
+    inputs[i].id('champs' + i);
+
+    } 
+//Enfin, on s'assure que les zones d'entrée sont bien positionnées
+inputs[i].position(630, i*50 + 50);
+    })(i);
+}
+
+//On dessine tous les textes avec les nouvelles valeurs
+txt[0] = createDiv('Rayon de la balle : ' + r + ' m').position(880, 50);
+txt[1] = createDiv('Masse de la balle : ' + m + ' kg').position(880, 100);
+txt[2] = createDiv('Coefficient de trainée : ' + ct).position(880, 150);
+txt[3] = createDiv('Coefficient de portance : ' + cp).position(880, 200);
+txt[4] = createDiv('Masse volumique du fluide : ' + rho + ' kg*m^-3').position(880, 250);
+txt[5] = createDiv('Angle de frappe : ' + angle + '°').position(880, 300);
+txt[6] = createDiv('Accélération de la pesanteur : ' + g + ' m*s^-2').position(880, 350);
+txt[7] = createDiv('Vitesse donnée lors de la frappe : ' + v + ' m*s^-1').position(880, 400);
+txt[8] = createDiv('Zoom : ' + zoom).position(880, 450);
  
-txt[0].position(880, 50);
-txt[1].position(880, 100);
-txt[2].position(880, 150);
-txt[3].position(880, 200);
-txt[4].position(880, 250);
-txt[5].position(880, 300);
-txt[6].position(880, 350);
-txt[7].position(880, 400);
-txt[8].position(880, 450);
+    
+    
+    
+//--------------------
+// Deuxième partie du programme : La méthode d'Euler et l'application des formules de force
+//--------------------
     
 // on calcule d'abord la vitesse initiale de la balle sur les x    
 var vix = cos(angle)*v;
@@ -160,17 +232,35 @@ var vix = cos(angle)*v;
         }
     }
     
+//On réinitialise tous les éléments de la liste focus à false
+    for(elt of focus) {
+        elt = false;
+    }
+        
 Affichage();
 Terrain();
     
 }
 
 function Terrain() {
+// On ajuste la taille d'écriture au zoom
+    if(zoom < 8) {
+        textSize(8);
+    }else{
+        textSize(15);
+    }
 // on trace des segments tous les 5 mètres
     for(var i = 0; i<300; i+= 5) {
-        line(i*zoom + 50, 400, i*zoom + 10*zoom + 50, 400);
+        
+        //échelle horizontale
+        line(50, 400, i*zoom + 10*zoom + 50, 400);
         line(i*zoom + 50, 400, i*zoom + 50, 410);
         text(i, i*zoom + 40, 425);
+        //échelle verticale
+        line(50, 400, 50, -i*zoom+400);
+        line(50, 400 - i*zoom, 40, -i*zoom+400);
+        
+        text(i, 20, 405 - i*zoom);
     }
     line(11.89*zoom + 50, 400, 11.89*zoom + 50, 400-(0.914*zoom));
     
@@ -220,4 +310,8 @@ function Faute(motif) {
     fill(255, 0, 0);
     text('Faute : ' + motif, 150, 100);
     fill(255);
+}
+
+function refreshValue() {
+    console.log(this.value());
 }
