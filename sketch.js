@@ -2,18 +2,18 @@
 var zoom = 13;
 
 //On crée des variables globales de Slider
-var rS,mS, ctS, cpS, rhoS, angleS, gS;
+var rS,mS, ctS, sS, rhoS, angleS, gS;
 var S = [];
 var txt = [];
-var Smin = [0.01,0.01, 0.001,-50,1,0,1,1,1];
-var Smax = [0.05,5,10,50,10,89,15,50,50];
+var Smin = [0.01,0.01, 0.001,-500,1,0,1,1,1];
+var Smax = [0.05,5,10,300,10,89,15,50,50];
 
 var Sstep = [0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.5];
 // On définit les constantes concernant la balle, et le milieu
 var r = 0.032;
-var m = 0.14;
+var m = 0.055;
 var ct = 0.5;
-var cp = 0.6;
+var s = 5;
 var rho = 1.28;
 var angle = 30;
 var g = 9.81;
@@ -41,17 +41,14 @@ var posy = [];
 var inputs = [];
 var focus = [];
 
-var Sval = [r,m,ct,cp,rho,angle,g,v,zoom];
+var Sval = [r,m,ct,s,rho,angle,g,v,zoom];
 function setup() {
     createCanvas(600, 600);
     background(51);
     angleMode(DEGREES);
     textSize(15);
     
-    
-    
 
-    
 // On définit les constantes concernant la balle, et le milieu
     for(var i = 0; i < 9; i++) {
         S[i] = createSlider(Smin[i], Smax[i], Sval[i], Sstep[i]);
@@ -84,7 +81,7 @@ function draw() {
 r = S[0].value(); 
 m = S[1].value();   
 ct = S[2].value();   
-cp = S[3].value();   
+s = S[3].value();   
 rho = S[4].value();   
 angle = S[5].value();   
 g = S[6].value();
@@ -105,7 +102,7 @@ zoom = S[8].value();
             break;
         case 2:paramname = ct;
             break;
-        case 3:paramname = cp;
+        case 3:paramname = s;
             break;
         case 4:paramname = rho;
             break;
@@ -160,7 +157,7 @@ inputs[i].position(630, i*50 + 50);
 txt[0] = createDiv('Rayon de la balle : ' + r + ' m').position(880, 50);
 txt[1] = createDiv('Masse de la balle : ' + m + ' kg').position(880, 100);
 txt[2] = createDiv('Coefficient de trainée : ' + ct).position(880, 150);
-txt[3] = createDiv('Coefficient de portance : ' + cp).position(880, 200);
+txt[3] = createDiv('Vitesse angulaire donnée à la balle : ' + s + ' rad/s ( ' + Number((s)/(2*PI)).toFixed(1) + ' tours/sec)').position(880, 200);
 txt[4] = createDiv('Masse volumique du fluide : ' + rho + ' kg*m^-3').position(880, 250);
 txt[5] = createDiv('Angle de frappe : ' + angle + '°').position(880, 300);
 txt[6] = createDiv('Accélération de la pesanteur : ' + g + ' m*s^-2').position(880, 350);
@@ -178,14 +175,15 @@ txt[8] = createDiv('Zoom : ' + zoom).position(880, 450);
 var vix = cos(angle)*v;
     
     for(var i=0; i<end; i+=step) {
-        
+        i = Number((i).toFixed(5));
         if(i == 0) {
         accx[0] = 0;
         velsx[0] = vix;
         posx[0] = xi; 
         } else {
         if(i == step) {
-    var ax = (rho*PI*r*r*vix*vix * (-cos(angle)*ct - sin(angle))*cp)/2*m;
+    var ax = (accx[0]+rho*PI*r*r*vix*vix * (-cos(angle)*ct)
+             +(4/3)*4*PI*PI*r*r*r*-s*2*PI*rho*vix*sin(angle))/2*m;
 //on en déduit la nouvelle vitesse sur x
     var vfx = vix + ax*step;
 //on en déduit la nouvelle position sur x
@@ -195,10 +193,11 @@ var vix = cos(angle)*v;
     posx[step] = xf;
     
         }else {
-            velsx[i] = velsx[i-step] + accx[i-step]*step;
             posx[i] = posx[i-step] + velsx[i-step]*step + (1/2)*accx[i-step]*step*step;
-            accx[i] = (rho*PI*r*r*velsx[i]*velsx[i]*(-cos(angle)*ct - sin(angle))*cp)/2*m;
-            
+            velsx[i] = ((2*(posx[i]-posx[i-step]))/step) - velsx[i-step];
+            accx[i] = (accx[i-step]+rho*PI*r*r*velsx[i]*velsx[i]*(-cos(angle)*ct) 
+                       + (4/3)*4*PI*PI*r*r*r*-s*2*PI*rho*velsx[i]*sin(angle))/2*m;
+
         }
         }
     }
@@ -214,7 +213,8 @@ var vix = cos(angle)*v;
         posy[0] = yi; 
         }else {
         if(i == step) {
-    var ay = -g + (rho*PI*r*r*viy*viy * (-sin(angle)*ct + cos(angle)*cp))/2*m;
+    var ay = -g + (rho*PI*r*r*viy*viy * (-sin(angle)*ct)
+                  +(4/3)*4*PI*PI*r*r*r*-s*2*PI*rho*viy*cos(angle))/2*m;
 //on en déduit la nouvelle vitesse sur y
     var vfy = viy + ay*step;
 //on en déduit la nouvelle position sur y
@@ -224,11 +224,11 @@ var vix = cos(angle)*v;
     posy[step] = yf;
     
         }else {
-            velsy[i] = velsy[i-step] + accy[i-step]*step;
             posy[i] = posy[i-step] + velsy[i-step]*step + (1/2)*accy[i-step]*step*step;
-            accy[i] = -g + (rho*PI*r*r*velsy[i]*velsy[i]*(-sin(angle)*ct + cos(angle)*cp))/2*m;
-            
-        }
+            velsy[i] = ((2*(posy[i]-posy[i-step]))/step) - velsy[i-step];
+            accy[i] = -g + (rho*PI*r*r*velsy[i]*velsy[i]*(-sin(angle)*ct)
+                           +(4/3)*4*PI*PI*r*r*r*-s*2*PI*rho*velsy[i]*cos(angle))/2*m;  
+            }
         }
     }
     
