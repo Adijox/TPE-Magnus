@@ -182,8 +182,8 @@ var vix = cos(angle)*v;
         posx[0] = xi; 
         } else {
         if(i == step) {
-    var ax = (accx[0]+rho*PI*r*r*vix*vix * (-cos(angle)*ct)
-             +(4/3)*4*PI*PI*r*r*r*-s*2*PI*rho*vix*sin(angle))/2*m;
+    var ax = ((1/2)*(rho*PI*r*r*vix*vix * (-cos(angle)*ct))
+             +(4/3)*4*PI*PI*r*r*r*-s*2*PI*rho*vix*sin(angle))/m;
 //on en déduit la nouvelle vitesse sur x
     var vfx = vix + ax*step;
 //on en déduit la nouvelle position sur x
@@ -195,8 +195,8 @@ var vix = cos(angle)*v;
         }else {
             posx[i] = posx[i-step] + velsx[i-step]*step + (1/2)*accx[i-step]*step*step;
             velsx[i] = ((2*(posx[i]-posx[i-step]))/step) - velsx[i-step];
-            accx[i] = (accx[i-step]+rho*PI*r*r*velsx[i]*velsx[i]*(-cos(angle)*ct) 
-                       + (4/3)*4*PI*PI*r*r*r*-s*2*PI*rho*velsx[i]*sin(angle))/2*m;
+            accx[i] = ((1/2)*(rho*PI*r*r*velsx[i]*velsx[i]*(-cos(angle)*ct)) 
+                       + (4/3)*4*PI*PI*r*r*r*-s*2*PI*rho*velsx[i]*sin(angle))/m;
 
         }
         }
@@ -213,8 +213,8 @@ var vix = cos(angle)*v;
         posy[0] = yi; 
         }else {
         if(i == step) {
-    var ay = -g + (rho*PI*r*r*viy*viy * (-sin(angle)*ct)
-                  +(4/3)*4*PI*PI*r*r*r*-s*2*PI*rho*viy*cos(angle))/2*m;
+    var ay = -g + ((1/2)*(rho*PI*r*r*viy*viy * (-sin(angle)*ct))
+                  +(4/3)*4*PI*PI*r*r*r*-s*2*PI*rho*viy*cos(angle))/m;
 //on en déduit la nouvelle vitesse sur y
     var vfy = viy + ay*step;
 //on en déduit la nouvelle position sur y
@@ -226,8 +226,8 @@ var vix = cos(angle)*v;
         }else {
             posy[i] = posy[i-step] + velsy[i-step]*step + (1/2)*accy[i-step]*step*step;
             velsy[i] = ((2*(posy[i]-posy[i-step]))/step) - velsy[i-step];
-            accy[i] = -g + (rho*PI*r*r*velsy[i]*velsy[i]*(-sin(angle)*ct)
-                           +(4/3)*4*PI*PI*r*r*r*-s*2*PI*rho*velsy[i]*cos(angle))/2*m;  
+            accy[i] = -g + ((1/2)*(rho*PI*r*r*velsy[i]*velsy[i]*(-sin(angle)*ct))
+                           +(4/3)*4*PI*PI*r*r*r*-s*2*PI*rho*velsy[i]*cos(angle))/m;  
             }
         }
     }
