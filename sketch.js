@@ -5,8 +5,8 @@ var zoom = 13;
 var rS,mS, ctS, sS, rhoS, angleS, gS;
 var S = [];
 var txt = [];
-var Smin = [0.01,0.01, 0.001,-500,1,0,1,1,1];
-var Smax = [0.05,5,10,300,10,89,15,50,50];
+var Smin = [0.01,0.01, 0.001,-50,1,0,1,1,1];
+var Smax = [0.05,5,10,30,10,89,15,50,50];
 
 var Sstep = [0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.5];
 // On définit les constantes concernant la balle, et le milieu
