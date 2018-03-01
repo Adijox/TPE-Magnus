@@ -214,7 +214,7 @@ var vix = cos(angle)*v;
         }else {
         if(i == step) {
     var ay = -g + ((1/2)*(rho*PI*r*r*viy*viy * (-sin(angle)*ct))
-                  +(4/3)*4*PI*PI*r*r*r*-s*2*PI*rho*viy*cos(angle))/m;
+                  +(4/3)*4*PI*PI*r*r*r*-s*rho*viy*cos(angle))/m;
 //on en déduit la nouvelle vitesse sur y
     var vfy = viy + ay*step;
 //on en déduit la nouvelle position sur y
@@ -227,7 +227,7 @@ var vix = cos(angle)*v;
             posy[i] = posy[i-step] + velsy[i-step]*step + (1/2)*accy[i-step]*step*step;
             velsy[i] = ((2*(posy[i]-posy[i-step]))/step) - velsy[i-step];
             accy[i] = -g + ((1/2)*(rho*PI*r*r*velsy[i]*velsy[i]*(-sin(angle)*ct))
-                           +(4/3)*4*PI*PI*r*r*r*-s*2*PI*rho*velsy[i]*cos(angle))/m;  
+                           +(4/3)*4*PI*PI*r*r*r*-s*2*rho*velsy[i]*cos(angle))/m;  
             }
         }
     }
