@@ -251,7 +251,7 @@ function Terrain() {
     }
 // on trace des segments tous les 5 mètres
     for(var i = 0; i<300; i+= 5) {
-        
+        strokeWeight(2);
         //échelle horizontale
         line(50, 400, i*zoom + 10*zoom + 50, 400);
         line(i*zoom + 50, 400, i*zoom + 50, 410);
@@ -263,7 +263,7 @@ function Terrain() {
         text(i, 20, 405 - i*zoom);
     }
     line(11.89*zoom + 50, 400, 11.89*zoom + 50, 400-(0.914*zoom));
-    
+    strokeWeight(1);
 }
 function Affichage() {
     for(var i = 0; i<end; i+=step) {
