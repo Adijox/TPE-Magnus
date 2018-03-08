@@ -1,5 +1,5 @@
 // valeur du zoom sur l'espace de dessin
-var zoom = 13;
+var zoom = 18;
 
 //On crée des variables globales de Slider
 var rS,mS, ctS, sS, rhoS, angleS, gS;
@@ -71,7 +71,7 @@ function draw() {
 //--------------------
 //Première partie du programme : mise en place de l'interface graphique (curseurs, zones de texte et d'entrée)
 //--------------------
-    background(51);
+    background(120);
     fill(255);
 //On supprime les textes affichés et les boites d'entrée pour en dessiner de nouveaux, avec des valeurs actualisées
     for(var i = 0; i < txt.length; i++) {
@@ -286,8 +286,9 @@ function Affichage() {
 //             rayon doit lui permettre de passer           la surface du terrain
            
 // On dessine la balle (de rayon indépendant du zoom pour un confort visuel)
-                ellipse(posx[i]*zoom + 50, -posy[i]*zoom + 400, 300*r, 300*r);
-   
+            fill(204, 255, 0);
+            ellipse(posx[i]*zoom + 50, -posy[i]*zoom + 400, 300*r, 300*r);
+            fill(255);
         }else{
 //On différencie les motifs de faute
             //On commence par les balles trop courtes/longues
@@ -308,7 +309,9 @@ function Affichage() {
 
 function Faute(motif) {
     fill(255, 0, 0);
+    textSize(25);
     text('Faute : ' + motif, 150, 100);
+    textSize(15);
     fill(255);
 }
 
